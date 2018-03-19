@@ -1,0 +1,4 @@
+# terraform state artifacts:
+*.tfstate
+*.tfstate.backup
+.terraform/
