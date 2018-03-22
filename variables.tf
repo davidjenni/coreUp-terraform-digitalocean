@@ -1,10 +1,9 @@
 variable "do_token" {
-  description = "DigitalOcean API token with read/write permissions"
+  description = "DigitalOcean API token with read/write permissions; can also be set as env variable TF_VAR_do_token"
 }
 
 variable "cluster_name" {
-  description = "Cluster name"
-  default     = "test"
+  description = "Cluster base name"
 }
 
 variable "provision_ssh_pub" {
@@ -19,7 +18,7 @@ variable "provision_ssh_priv_key" {
 
 variable "provision_user" {
   default     = "core"
-  description = "User used to log in to the droplets via ssh for issueing Docker commands"
+  description = "Host OS and SSH user used to log in to the droplets for issueing Docker commands"
 }
 
 variable "region" {
@@ -35,4 +34,14 @@ variable "image" {
 variable "size" {
   description = "Droplet size; see: doctl compute size list"
   default     = "s-1vcpu-1gb"
+}
+
+variable "manager_node_count" {
+  description = "Number of manager nodes in the docker swarm; should be either 1, 3 or 5"
+  default     = "3"
+}
+
+variable "worker_node_count" {
+  description = "Number of worker nodes in the docker swarm; can be 0 or more nodes"
+  default     = "1"
 }

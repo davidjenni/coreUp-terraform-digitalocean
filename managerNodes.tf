@@ -1,3 +1,7 @@
+terraform {
+  required_version = "~>0.11"
+}
+
 provider "digitalocean" {
   token   = "${var.do_token}"
   version = "~> 0.1"
@@ -26,7 +30,7 @@ resource "digitalocean_droplet" "manager" {
   size               = "${var.size}"
   private_networking = true
   ipv6               = true
-  count              = 1
+  count              = "${var.manager_node_count}"
   name               = "${format("%s-manager-%02d.%s", var.cluster_name, count.index + 1, var.region)}"
   ssh_keys           = ["${digitalocean_ssh_key.core.fingerprint}"]
   tags               = ["${digitalocean_tag.cluster.name}", "${digitalocean_tag.manager.name}"]
