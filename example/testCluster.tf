@@ -13,7 +13,7 @@ module "testCluster" {
 
   cluster_name       = "test"
   region             = "sfo1"
-  manager_node_count = 1
+  manager_node_count = 3
   worker_node_count  = 1
 }
 
