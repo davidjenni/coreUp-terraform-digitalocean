@@ -7,3 +7,8 @@ output "ipv4_addresses_private" {
   value       = ["${digitalocean_droplet.manager.*.ipv4_address_private}"]
   description = "The manager nodes' private ipv4 adresses"
 }
+
+output "sshKeyFile" {
+  value       = "${var.provision_ssh_priv_key}"
+  description = "path to SSH private key file"
+}
