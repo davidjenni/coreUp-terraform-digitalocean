@@ -1,0 +1,45 @@
+# see also: https://github.com/coreos/container-linux-config-transpiler/blob/master/doc/configuration.md
+
+update:
+  # https://coreos.com/os/docs/latest/update-strategies.html
+  group:  "stable"
+locksmith:
+  reboot_strategy: "reboot"
+  window_start:    "Mon 5:00"
+  window_length:   "2h"
+
+systemd:
+  units:
+    # https://coreos.com/os/docs/latest/customizing-sshd.html
+    - name: sshd.socket
+      dropins:
+      - name: 10-sshd-port.conf
+        contents: |
+          [Socket]
+          ListenStream=
+          ListenStream=${ssh_port}
+
+storage:
+  files:
+    # https://coreos.com/os/docs/latest/customizing-sshd.html
+    - path: /etc/ssh/sshd_config
+      filesystem: root
+      mode: 0600
+      user:
+        name: root
+      group:
+        name: root
+      contents:
+        inline: |
+          AllowUsers core
+          AuthenticationMethods publickey
+          ChallengeResponseAuthentication no
+          ClientAliveInterval 180
+          PasswordAuthentication no
+          PermitRootLogin no
+          PrintLastLog no # handled by PAM
+          PrintMotd no # handled by PAM
+          Subsystem sftp internal-sftp
+          UsePrivilegeSeparation sandbox
+          UseDNS no
+          UsePAM yes

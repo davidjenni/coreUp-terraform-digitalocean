@@ -42,12 +42,13 @@ resource "digitalocean_droplet" "manager" {
   name               = "${format("%s-manager-%02d.%s", var.cluster_name, count.index + 1, var.region)}"
   ssh_keys           = ["${digitalocean_ssh_key.core.fingerprint}"]
   tags               = ["${digitalocean_tag.cluster.name}", "${digitalocean_tag.manager.name}"]
+  user_data          = "${data.template_file.cloud_config.rendered}"
 
   connection {
     type        = "ssh"
     user        = "${var.provision_user}"
     private_key = "${file("${var.provision_ssh_priv_key}")}"
-    port        = 22
+    port        = "${var.provision_ssh_port}"
   }
 
   provisioner "remote-exec" {
@@ -70,12 +71,13 @@ resource "digitalocean_droplet" "co-manager" {
   name               = "${format("%s-manager-%02d.%s", var.cluster_name, count.index + 2, var.region)}"
   ssh_keys           = ["${digitalocean_ssh_key.core.fingerprint}"]
   tags               = ["${digitalocean_tag.cluster.name}", "${digitalocean_tag.manager.name}"]
+  user_data          = "${data.template_file.cloud_config.rendered}"
 
   connection {
     type        = "ssh"
     user        = "${var.provision_user}"
     private_key = "${file("${var.provision_ssh_priv_key}")}"
-    port        = 22
+    port        = "${var.provision_ssh_port}"
   }
 
   provisioner "remote-exec" {
@@ -93,5 +95,16 @@ data "external" "swarm_join_token" {
     host        = "${digitalocean_droplet.manager.0.ipv4_address}"
     user        = "${var.provision_user}"
     private_key = "${var.provision_ssh_priv_key}"
+    port        = "${var.provision_ssh_port}"
+  }
+}
+
+data "template_file" "cloud_config" {
+  template = "${file("${path.module}/cloud-config.json")}"
+
+  vars {
+    ssh_port = "${var.provision_ssh_port}"
+
+    # ssh_port = "22"
   }
 }

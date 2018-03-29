@@ -21,6 +21,11 @@ variable "provision_user" {
   description = "Host OS and SSH user used to log in to the droplets for issueing Docker commands"
 }
 
+variable "provision_ssh_port" {
+  description = "SSH port; select a port != 22, not for security but to cut down on script kiddies banging on the default port"
+  default     = "22"
+}
+
 variable "region" {
   description = "Datacenter region in which the cluster will be created; see:  doctl compute region list"
   default     = "sfo2"

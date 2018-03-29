@@ -3,12 +3,12 @@
 set -e
 
 # parse JSON from stdin; this is the external datasource's 'query' dictionary:
-eval "$(jq -r '@sh "_MGR_HOST=\(.host) _USER=\(.user) _SSH_PRIV_KEY=\(.private_key)"')"
+eval "$(jq -r '@sh "_MGR_HOST=\(.host) _USER=\(.user) _SSH_PRIV_KEY=\(.private_key) _SSH_PORT=\(.port)"')"
 
-_MGR_TOKEN=$(ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i $_SSH_PRIV_KEY \
+_MGR_TOKEN=$(ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p $_SSH_PORT -i $_SSH_PRIV_KEY \
     $_USER@$_MGR_HOST docker swarm join-token manager -q)
 
-_WRKR_TOKEN=$(ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i $_SSH_PRIV_KEY \
+_WRKR_TOKEN=$(ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p $_SSH_PORT -i $_SSH_PRIV_KEY \
     $_USER@$_MGR_HOST docker swarm join-token worker -q)
 
 # result needs to be JSON as well:

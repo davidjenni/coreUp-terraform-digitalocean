@@ -12,3 +12,11 @@ output "sshKeyFile" {
   value       = "${var.provision_ssh_priv_key}"
   description = "path to SSH private key file"
 }
+
+output "sshPort" {
+  value = "${var.provision_ssh_port}"
+}
+
+output "sshUser" {
+  value = "${var.provision_user}"
+}

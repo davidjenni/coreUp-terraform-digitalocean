@@ -13,8 +13,9 @@ module "testCluster" {
 
   cluster_name       = "test"
   region             = "sfo1"
-  manager_node_count = 3
+  manager_node_count = 1
   worker_node_count  = 1
+  provision_ssh_port = 4410
 }
 
 output "manager" {
@@ -24,4 +25,12 @@ output "manager" {
 
 output "sshKeyFile" {
   value = "${module.testCluster.sshKeyFile}"
+}
+
+output "sshPort" {
+  value = "${module.testCluster.sshPort}"
+}
+
+output "sshUser" {
+  value = "${module.testCluster.sshUser}"
 }
