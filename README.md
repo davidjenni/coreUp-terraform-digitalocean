@@ -21,7 +21,7 @@ See the example/ folder for a starting point of a module definition.
 ## Dev environment
 
 ```fish
-brew install terraform
+brew install terraform coreos-ct
 ```
 
 ## Testing

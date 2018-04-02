@@ -99,12 +99,18 @@ data "external" "swarm_join_token" {
   }
 }
 
+data "external" "compile_cloud_config" {
+  program = ["${path.module}/compile-config.sh"]
+
+  query = {
+    config_yaml = "${path.module}/cloud-config.yaml"
+  }
+}
+
 data "template_file" "cloud_config" {
-  template = "${file("${path.module}/cloud-config.json")}"
+  template = "${lookup(data.external.compile_cloud_config.result, "config")}"
 
   vars {
     ssh_port = "${var.provision_ssh_port}"
-
-    # ssh_port = "22"
   }
 }
