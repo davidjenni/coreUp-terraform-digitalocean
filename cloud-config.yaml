@@ -43,3 +43,43 @@ storage:
           UsePrivilegeSeparation sandbox
           UseDNS no
           UsePAM yes
+
+    # https://coreos.com/os/docs/latest/customizing-docker.html
+    - path: /etc/docker/ca.pem
+      filesystem: root
+      mode: 0444
+      contents:
+        local: ca.pem
+    - path: /etc/docker/server.pem
+      filesystem: root
+      mode: 0444
+      contents:
+        local: server.pem
+    - path: /etc/docker/server-key.pem
+      filesystem: root
+      mode: 0400
+      contents:
+        local: server-key.pem
+
+systemd:
+  units:
+    - name: docker-tls-tcp.socket
+      enable: true
+      contents: |
+        [Unit]
+        Description=Docker Secured Socket for the API
+
+        [Socket]
+        ListenStream=2376
+        BindIPv6Only=both
+        Service=docker.service
+
+        [Install]
+        WantedBy=sockets.target
+
+docker:
+  flags:
+    - --tlsverify
+    - --tlscacert=/etc/docker/ca.pem
+    - --tlscert=/etc/docker/server.pem
+    - --tlskey=/etc/docker/server-key.pem

@@ -26,6 +26,11 @@ variable "provision_ssh_port" {
   default     = "22"
 }
 
+variable "provision_docker_tls_certs" {
+  description = "Path to docker TLS certs: ca.pem, server.pem, server-key.pem"
+  default     = "~/.docker/do-cluster"
+}
+
 variable "region" {
   description = "Datacenter region in which the cluster will be created; see:  doctl compute region list"
   default     = "sfo2"

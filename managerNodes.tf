@@ -51,13 +51,14 @@ resource "digitalocean_droplet" "manager" {
     port        = "${var.provision_ssh_port}"
   }
 
-  provisioner "remote-exec" {
-    # inline = "${file("${data.template_file.initSwarm.*.rendered}")}"
+  provisioner "local-exec" {
+    command = "${path.module}/scripts/init-swarm.sh ${digitalocean_droplet.manager.0.ipv4_address_private}"
 
-    inline = [
-      "while [ ! $(docker info -f '{{json .OperatingSystem}}') ]; do sleep 2; done",
-      "docker swarm init --advertise-addr ${digitalocean_droplet.manager.0.ipv4_address_private}; exit $?",
-    ]
+    environment {
+      DOCKER_TLS_VERIFY = 1
+      DOCKER_HOST       = "tcp://${digitalocean_droplet.manager.0.ipv4_address}:2376"
+      DOCKER_CERT_PATH  = "${pathexpand(var.provision_docker_tls_certs)}"
+    }
   }
 }
 
@@ -80,16 +81,19 @@ resource "digitalocean_droplet" "co-manager" {
     port        = "${var.provision_ssh_port}"
   }
 
-  provisioner "remote-exec" {
-    inline = [
-      "while [ ! $(docker info -f '{{json .OperatingSystem}}') ]; do sleep 2; done",
-      "docker swarm join --token ${lookup(data.external.swarm_join_token.result, "manager")} ${element(digitalocean_droplet.manager.*.ipv4_address_private, 0)}:2377; exit $?",
-    ]
+  provisioner "local-exec" {
+    command = "${path.module}/scripts/join-swarm.sh ${lookup(data.external.swarm_join_token.result, "manager")} ${digitalocean_droplet.manager.0.ipv4_address_private}"
+
+    environment {
+      DOCKER_TLS_VERIFY = 1
+      DOCKER_HOST       = "tcp://${digitalocean_droplet.manager.0.ipv4_address}:2376"
+      DOCKER_CERT_PATH  = "${pathexpand(var.provision_docker_tls_certs)}"
+    }
   }
 }
 
 data "external" "swarm_join_token" {
-  program = ["${path.module}/getSwarmJoinTokens.sh"]
+  program = ["${path.module}/scripts/get-join-tokens.sh"]
 
   query = {
     host        = "${digitalocean_droplet.manager.0.ipv4_address}"
@@ -100,10 +104,11 @@ data "external" "swarm_join_token" {
 }
 
 data "external" "compile_cloud_config" {
-  program = ["${path.module}/compile-config.sh"]
+  program = ["${path.module}/scripts/compile-config.sh"]
 
   query = {
     config_yaml = "${path.module}/cloud-config.yaml"
+    tls_dir     = "${pathexpand(var.provision_docker_tls_certs)}"
   }
 }
 
